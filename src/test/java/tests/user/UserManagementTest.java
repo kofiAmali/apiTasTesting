@@ -260,28 +260,101 @@ public class UserManagementTest {
 
     // ========== UPDATE USER TESTS ==========
 
-    @Test(description = "Update user - Success (200)", priority = 3)
+    @Test(description = "Setup: Create test user for update/archive operations", priority = 2)
+    public void setupTestUserForUpdateAndArchive() {
+        // Arrange - Create a unique test user
+        userEmail = "testuser.update." + System.currentTimeMillis() + "@example.com";
+        String request = "{\n" +
+                "    \"firstName\": \"Test\",\n" +
+                "    \"lastName\": \"User\",\n" +
+                "    \"roles\": \"VIEWER\",\n" +
+                "    \"email\": \"" + userEmail + "\",\n" +
+                "    \"data\": {\n" +
+                "        \"roles\": \"VIEWER\",\n" +
+                "        \"startDate\": \"30.06.2026\",\n" +
+                "        \"deactivateAfter\": \"NINE_MONTHS\",\n" +
+                "        \"journeyIds\": [\n" +
+                "            \"3e888b3d-d390-4b39-ad52-a670394f8b3c\"\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}";
+
+        // Act - Create the user
+        Response createResponse = client.createUser(request);
+
+        System.out.println("=== Create Test User Response ===");
+        System.out.println("Status Code: " + createResponse.getStatusCode());
+        System.out.println("Response Body: " + createResponse.getBody().asString());
+
+        // Assert user was created
+        ResponseAssertions.assertStatusCodeIn(createResponse, 201);
+
+        if (createResponse.getStatusCode() == 201) {
+            // Wait a moment for the user to be fully created in the system
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            // Get the user by email to extract the ID
+            Response getByEmailResponse = client.getUserByEmail(userEmail);
+
+            System.out.println("=== Get User By Email Response ===");
+            System.out.println("Status Code: " + getByEmailResponse.getStatusCode());
+            System.out.println("Response Body: " + getByEmailResponse.getBody().asString());
+
+            if (getByEmailResponse.getStatusCode() == 200) {
+                try {
+                    // Extract the user ID from the search results
+                    String jsonPath = "$.content[0].id";
+                    createdUserId = ResponseAssertions.extractJsonPath(getByEmailResponse, jsonPath);
+                    System.out.println("✓ Successfully created test user with ID: " + createdUserId);
+                    System.out.println("✓ User email: " + userEmail);
+                } catch (Exception e) {
+                    System.err.println("✗ Could not extract user ID from response: " + e.getMessage());
+                    System.err.println("Response: " + getByEmailResponse.getBody().asString());
+                }
+            } else {
+                System.err.println("✗ Failed to retrieve user by email. Status: " + getByEmailResponse.getStatusCode());
+            }
+        }
+    }
+
+    @Test(description = "Update user - Success (200)", priority = 3, dependsOnMethods = "setupTestUserForUpdateAndArchive")
     public void testUpdateUser_Success() {
         // Arrange
-        String userId = "b384b822-3081-701b-ea14-c492696ccc6f";
+        String userId = createdUserId != null ? createdUserId : "b384b822-3081-701b-ea14-c492696ccc6f";
+
+        System.out.println("Updating user with ID: " + userId);
+
         String request = "{\n" +
-                "    \"firstName\": \"Josephine\"\n" +
+                "    \"firstName\": \"Updated\",\n" +
+                "    \"lastName\": \"TestUser\"\n" +
                 "}";
 
         // Act
         Response response = client.updateUser(userId, request);
 
+        System.out.println("=== Update User Response ===");
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody().asString());
+
         // Assert
         ResponseAssertions.assertStatusCodeIn(response, 200);
+
+        if (response.getStatusCode() == 200) {
+            System.out.println("✓ Successfully updated user");
+        }
     }
 
-        //Test failed due to invalid user role handling
     @Test(description = "Update user - Invalid role (400)")
     public void testUpdateUser_InvalidRole() {
-        // Arrange
-        String userId = "b384b822-3081-701b-ea14-c492696ccc6f";
+        // Arrange - Use a known existing user ID or the created one
+        String userId = createdUserId != null ? createdUserId : "b384b822-3081-701b-ea14-c492696ccc6f";
+
         String request = "{\n" +
-                "    \"roles\": \"NON\"\n" +
+                "    \"roles\": \"INVALID_ROLE\"\n" +
                 "}";
 
         // Act
@@ -293,75 +366,98 @@ public class UserManagementTest {
 
     //========== DELETE USER TESTS ==========
 
-//     //Run it when user creation test is enabled
-//    @Test(description = "Delete user - Success (204)", priority = 4)
-//    public void testDeleteUser_Success() {
-//        // Arrange
-//        userEmail = userEmail != null ? userEmail : "abc@example.com";
-//
-//        Response getByEmailResponse = client.getUserByEmail(userEmail);
-//
-//        if (getByEmailResponse.getStatusCode() == 200) {
-//            try {
-//                // Extract the ID of the invite from the search results
-//                String jsonPath = "$.content[0].id";
-//                createdUserId = ResponseAssertions.extractJsonPath(getByEmailResponse, jsonPath);
-//                System.out.println("✓ Found user ID: " + createdUserId);
-//            } catch (Exception e) {
-//                System.err.println("✗ Could not find invite with code: " + createdUserId);
-//                System.err.println("Response: " + getByEmailResponse.getBody().asString());
-//            }
-//        }
-//        // Act
-//        Response response = client.deleteUser(createdUserId);
-//
-//        // Assert
-//        ResponseAssertions.assertStatusCodeIn(response, 204);
-//    }
-//
-//    @Test(description = "Delete user - Not found (404)")
-//    public void testDeleteUser_NotFound() {
-//        // Arrange
-//        String nonExistentId = "99999999-9999-9999-9999-999999999999";
-//
-//        // Act
-//        Response response = client.deleteUser(nonExistentId);
-//
-//        // Assert
-//        ResponseAssertions.assertStatusCodeIn(response, 404);
-//    }
+    @Test(description = "Delete user - Success (204)", priority = 7, dependsOnMethods = "testUnarchiveUser_Success")
+    public void testDeleteUser_Success() {
+        // Arrange - Use the created test user ID
+        String userId = createdUserId != null ? createdUserId : "b384b822-3081-701b-ea14-c492696ccc6f";
 
-    // ========== ARCHIVE USER TESTS ==========
-  // Waiting for user list data
-//    @Test(description = "Archive user - Success (200)")
-//    public void testArchiveUser_Success() {
-//        // Arrange
-//        String request = "{\n" +
-//                "    \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n" +
-//                "    \"status\": \"ARCHIVE\"\n" +
-//                "}";
-//
-//        // Act
-//        Response response = client.archiveUser(request);
-//
-//        // Assert
-//        ResponseAssertions.assertStatusCodeIn(response, 200, 404, 400, 403);
-//    }
+        System.out.println("Deleting user with ID: " + userId);
 
-//    @Test(description = "Unarchive user - Success (200)")
-//    public void testUnarchiveUser_Success() {
-//        // Arrange
-//        String request = "{\n" +
-//                "    \"userId\": \"123e4567-e89b-12d3-a456-426614174000\",\n" +
-//                "    \"status\": \"UNARCHIVE\"\n" +
-//                "}";
-//
-//        // Act
-//        Response response = client.archiveUser(request);
-//
-//        // Assert
-//        ResponseAssertions.assertStatusCodeIn(response, 200, 404, 400, 403);
-//    }
+        // Act
+        Response response = client.deleteUser(userId);
+
+        System.out.println("=== Delete User Response ===");
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody().asString());
+
+        // Assert
+        ResponseAssertions.assertStatusCodeIn(response, 204);
+
+        if (response.getStatusCode() == 204) {
+            System.out.println("✓ Successfully deleted user");
+            // Clear the user ID since it's been deleted
+            createdUserId = null;
+            userEmail = null;
+        }
+    }
+
+    @Test(description = "Delete user - Not found (404)")
+    public void testDeleteUser_NotFound() {
+        // Arrange
+        String nonExistentId = "99999999-9999-9999-9999-999999999999";
+
+        // Act
+        Response response = client.deleteUser(nonExistentId);
+
+        // Assert
+        ResponseAssertions.assertStatusCodeIn(response, 404);
+    }
+
+     //========== ARCHIVE USER TESTS ==========
+
+    @Test(description = "Archive user - Success (200)", priority = 5, dependsOnMethods = "testUpdateUser_Success")
+    public void testArchiveUser_Success() {
+        // Arrange - Use the created test user ID
+        String userId = createdUserId != null ? createdUserId : "b384b822-3081-701b-ea14-c492696ccc6f";
+
+        System.out.println("Archiving user with ID: " + userId);
+
+        String request = "{\n" +
+                "    \"userId\": \"" + userId + "\",\n" +
+                "    \"status\": \"ARCHIVE\"\n" +
+                "}";
+
+        // Act
+        Response response = client.archiveUser(request);
+
+        System.out.println("=== Archive User Response ===");
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody().asString());
+
+        // Assert
+        ResponseAssertions.assertStatusCodeIn(response, 200);
+
+        if (response.getStatusCode() == 200) {
+            System.out.println("✓ Successfully archived user");
+        }
+    }
+
+    @Test(description = "Unarchive user - Success (200)", priority = 6, dependsOnMethods = "testArchiveUser_Success")
+    public void testUnarchiveUser_Success() {
+        // Arrange - Use the same user that was archived
+        String userId = createdUserId != null ? createdUserId : "b384b822-3081-701b-ea14-c492696ccc6f";
+
+        System.out.println("Unarchiving user with ID: " + userId);
+
+        String request = "{\n" +
+                "    \"userId\": \"" + userId + "\",\n" +
+                "    \"status\": \"UNARCHIVE\"\n" +
+                "}";
+
+        // Act
+        Response response = client.archiveUser(request);
+
+        System.out.println("=== Unarchive User Response ===");
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody().asString());
+
+        // Assert
+        ResponseAssertions.assertStatusCodeIn(response, 200);
+
+        if (response.getStatusCode() == 200) {
+            System.out.println("✓ Successfully unarchived user");
+        }
+    }
 
     // ========== PROFILE TESTS ==========
 

@@ -8,14 +8,8 @@
 
     <test name="User Management Tests">
         <classes>
-            <class name="tests.user.PreferredJourneyTest"/>
             <class name="tests.user.UserManagementTest"/>
-        </classes>
-    </test>
-
-    <test name="User Checklist Tests">
-        <classes>
-            <class name="tests.checklist.ChecklistTest"/>
+            <class name="tests.user.JourneyStageChapterPageManagementTest"/>
         </classes>
     </test>
 
@@ -25,87 +19,61 @@
         </classes>
     </test>
 
-    <test name="User Progress Tests">
-        <classes>
-            <class name="tests.progress.UserProgressTest"/>
-        </classes>
-    </test>
-
     <test name="Language Tests">
         <classes>
             <class name="tests.language.LanguageTest"/>
         </classes>
     </test>
 
-    <test name="Token Verification Tests">
-        <classes>
-            <class name="tests.token.TokenVerificationTest"/>
-        </classes>
-    </test>
-
-    <test name="Case Tests">
-        <classes>
-            <class name="tests.cases.CaseTest"/>
-        </classes>
-    </test>
-
-    <test name="Template Tests">
-        <classes>
-            <class name="tests.template.TemplateTest"/>
-        </classes>
-    </test>
-
-    <test name="Asset Management Tests">
-        <classes>
-            <class name="tests.asset.AssetManagementTest"/>
-        </classes>
-    </test>
-
-    <test name="Chapter Management Tests">
-        <classes>
-            <class name="tests.chapter.ChapterTest"/>
-        </classes>
-    </test>
-
-    <test name="Notification Tests">
-        <classes>
-            <class name="tests.notification.NotificationSettingsTest"/>
-        </classes>
-    </test>
-
-    <test name="Journey/Stage Tests">
-        <classes>
-            <class name="tests.journey.ReorderStagesTest"/>
-        </classes>
-    </test>
-
-    <test name="Data Management Tests">
-        <classes>
-            <class name="tests.data.DataManagementTest"/>
-        </classes>
-    </test>
-
-    <test name="Content Map Tests">
-        <classes>
-            <class name="tests.contentmap.ContentMapTest"/>
-        </classes>
-    </test>
-
-    <test name="Journey Preview Tests">
-        <classes>
-            <class name="tests.preview.JourneyPreviewTest"/>
-        </classes>
-    </test>
-
-    <test name="Dashboard Tests">
-        <classes>
-            <class name="tests.dashboard.DashboardTest"/>
-        </classes>
-    </test>
-
     <test name="Knowledge Item Tests">
         <classes>
             <class name="tests.knowledge.KnowledgeItemTest"/>
+        </classes>
+    </test>
+
+    <test name="Journey Tests">
+        <classes>
+            <class name="tests.journey.JourneyCRUDTest"/>
+            <class name="tests.journey.JourneyTagsCRUDTest"/>
+            <class name="tests.journey.JourneyStageChapterPageRequiredFieldValidationTest"/>
+        </classes>
+    </test>
+
+    <test name="Journey Settings Tests">
+        <classes>
+            <class name="tests.settings.JourneySettingsTest"/>
+        </classes>
+    </test>
+
+    <test name="Stage Tests">
+        <classes>
+            <class name="tests.stages.StageCRUDTest"/>
+        </classes>
+    </test>
+
+    <test name="Chapter Tests">
+        <classes>
+            <class name="tests.chapter.ChapterCRUDTest"/>
+        </classes>
+    </test>
+
+    <test name="Page Tests">
+        <classes>
+            <class name="tests.pages.PageCRUDTest"/>
+            <class name="tests.pages.PageTypeCreationTest"/>
+        </classes>
+    </test>
+
+    <test name="Settings Tests">
+        <classes>
+            <class name="tests.settings.StageSettingsTest"/>
+            <class name="tests.settings.ChapterSettingsTest"/>
+        </classes>
+    </test>
+
+    <test name="Tag Category Tests">
+        <classes>
+            <class name="tests.tagcategory.TagCategoryCRUDTest"/>
         </classes>
     </test>
 

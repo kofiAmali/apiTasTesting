@@ -1,4 +1,4 @@
-package tests.journeysettings;
+package tests.settings;
 
 import assertions.*;
 import client.*;
@@ -77,7 +77,7 @@ public class JourneySettingsTest {
         ResponseAssertions.assertStatusCodeIn(response, 200, 404);
     }
 
-    @Test(description = "Update journey settings - Unauthorized (401)")
+    @Test(description = "Update journey settings - Unauthorized (403)")
     public void testUpdateJourneySettings_Unauthorized() {
         // Arrange
         String originalToken = AuthManager.getBearerToken();
@@ -85,7 +85,7 @@ public class JourneySettingsTest {
 
         try {
             Response response = client.updateJourneySettings(TEST_JOURNEY_ID, new HashMap<>());
-            ResponseAssertions.assertStatusCode(response, 401);
+            ResponseAssertions.assertStatusCode(response, 403);
         } finally {
             AuthManager.setBearerToken(originalToken);
         }

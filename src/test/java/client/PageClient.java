@@ -13,6 +13,20 @@ public class PageClient {
     private static final String BASE_PATH = "/api/v1/pages";
 
     /**
+     * Create a new page.
+     * POST /api/v1/pages
+     * @param requestBody Page creation request
+     * @return Response with generic message
+     */
+    public Response createPage(Object requestBody) {
+        return given()
+                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .body(requestBody)
+                .when()
+                .post(BASE_PATH);
+    }
+
+    /**
      * Get a page by slug.
      * GET /api/v1/pages/{pageSlug}/view
      * @param pageSlug Page slug identifier
@@ -76,5 +90,33 @@ public class PageClient {
                 .body(requestBody)
                 .when()
                 .put(BASE_PATH + "/{pageId}");
+    }
+
+    /**
+     * Get page by ID.
+     * GET /api/v1/pages/{pageId}
+     * @param pageId Unique identifier of the page
+     * @return Response with page details
+     */
+    public Response getPageById(String pageId) {
+        return given()
+                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .pathParam("pageId", pageId)
+                .when()
+                .get(BASE_PATH + "/{pageId}");
+    }
+
+    /**
+     * Delete a page by ID.
+     * DELETE /api/v1/pages/delete/{pageId}
+     * @param pageId Unique identifier of the page to delete
+     * @return Response (204 No Content on success)
+     */
+    public Response deletePage(String pageId) {
+        return given()
+                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .pathParam("pageId", pageId)
+                .when()
+                .delete(BASE_PATH + "/delete/{pageId}");
     }
 }

@@ -35,7 +35,7 @@ public class JourneySettingsClient {
      */
     public Response updateJourneySettings(String journeyId, Object requestBody) {
         return given()
-                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .spec(RequestSpecFactory.getRequestSpecWithoutAuth())
                 .pathParam("journeyId", journeyId)
                 .body(requestBody)
                 .when()

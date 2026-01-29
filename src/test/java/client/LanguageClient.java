@@ -37,34 +37,4 @@ public class LanguageClient {
                 .when()
                 .get(BASE_PATH + "/{languageCode}");
     }
-
-    /**
-     * Add a new language.
-     * POST /api/v1/languages
-     * @param requestBody Language request object
-     * @return Response with created language
-     */
-    public Response addLanguage(Object requestBody) {
-        return given()
-                .spec(RequestSpecFactory.getAdminRequestSpec())
-                .body(requestBody)
-                .when()
-                .post(BASE_PATH);
-    }
-
-    /**
-     * Update language.
-     * PUT /api/v1/languages/{languageCode}
-     * @param languageCode Language code
-     * @param requestBody Language update request
-     * @return Response with generic message
-     */
-    public Response updateLanguage(String languageCode, Object requestBody) {
-        return given()
-                .spec(RequestSpecFactory.getAdminRequestSpec())
-                .pathParam("languageCode", languageCode)
-                .body(requestBody)
-                .when()
-                .put(BASE_PATH + "/{languageCode}");
-    }
 }

@@ -32,12 +32,13 @@ public class ChapterClient {
      * @param requestBody Chapter creation request
      * @return Response with created chapter
      */
-    public Response createChapter(Object requestBody) {
+    public Response createChapter(String stageSlug,Object requestBody) {
         return given()
                 .spec(RequestSpecFactory.getAdminRequestSpec())
+                .pathParam("stageSlug", stageSlug)
                 .body(requestBody)
                 .when()
-                .post(BASE_PATH);
+                .post(BASE_PATH + "/{stageSlug}");
     }
 
     /**
@@ -71,6 +72,20 @@ public class ChapterClient {
     }
 
     /**
+     * Delete chapter by ID (from delete endpoint).
+     * DELETE /api/v1/chapters/delete/{chapterId}
+     * @param chapterId Unique identifier of the chapter
+     * @return Response (204 No Content on success)
+     */
+    public Response deleteChapterById(String chapterId) {
+        return given()
+                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .pathParam("chapterId", chapterId)
+                .when()
+                .delete(BASE_PATH + "/delete/{chapterId}");
+    }
+
+    /**
      * Get chapters for a stage.
      * GET /api/v1/chapters/stage/{stageId}
      * @param stageId Unique identifier of the stage
@@ -98,6 +113,36 @@ public class ChapterClient {
                 .body(requestBody)
                 .when()
                 .put(BASE_PATH + "/{chapterId}/tags");
+    }
+
+    /**
+     * Create/Add tags to a chapter.
+     * POST /api/v1/chapters/{chapterId}/tags
+     * @param chapterId Unique identifier of the chapter
+     * @param requestBody TagRequest with name and categoryId
+     * @return Response with generic message
+     */
+    public Response createChapterTag(String chapterId, Object requestBody) {
+        return given()
+                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .pathParam("chapterId", chapterId)
+                .body(requestBody)
+                .when()
+                .post(BASE_PATH + "/{chapterId}/tags");
+    }
+
+    /**
+     * Get list of tags for a chapter.
+     * GET /api/v1/chapters/{chapterId}/tags-list
+     * @param chapterId Unique identifier of the chapter
+     * @return Response with tag list
+     */
+    public Response getChapterTags(String chapterId) {
+        return given()
+                .spec(RequestSpecFactory.getAdminRequestSpec())
+                .pathParam("chapterId", chapterId)
+                .when()
+                .get(BASE_PATH + "/{chapterId}/tags-list");
     }
 
     /**
